@@ -1,3 +1,5 @@
+<!--instagram API 이용하여 코딩-->
+
 <?php
 
     function processURL($url)
@@ -20,7 +22,7 @@
     // 공연 이름 받아와서 url 검색! (insta api 사용)
     $tag = urlencode($title);
     $client_id = "996ffe9e18ab4712b0a135fd1e5608e3";
-    $url = 'https://api.instagram.com/v1/tags/search?q='.$tag.'&client_id='.$client_id;
+    $url = 'https://api.instagram.com/v1/tags/search?q='.$tag.'&client_id='.$client_id; // instagram API 이용
 
     $all_result  = processURL($url);
     $arrtag = json_decode($all_result);

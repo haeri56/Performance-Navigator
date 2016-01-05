@@ -1,3 +1,4 @@
+/* Tmap API를 이용하여 코딩*/
 
 var output = document.getElementById("output");
 //좌표 변환 
@@ -204,9 +205,6 @@ function loadPerformData(callback) {
 
         alert("getJSON failed, status: " + textStatus + ", error: " + error + data.responseText)
     });
-//    if( typeof callback === "function" ) {
-//        callback();
-//    }
 
 }
 
@@ -217,7 +215,6 @@ function map_coord(pos_x, pos_y, finishTime, starCount, label) {
     if (pos_x !== 0 && pos_y !== 0) {
         var position = new Tmap.LonLat(pos_x, pos_y).transform(pr_4326, pr_3857);  // 다음 좌표계에 좌표 입력 
 
-        //loadGetAddressFromLonLat(position, label);
         addMarker(position, finishTime, starCount, new Tmap.Label(label));
     }
 
