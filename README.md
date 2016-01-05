@@ -7,7 +7,7 @@
 alt="공연네비게이터" width="240" height="180" border="10" /></a>
 
 ####프로젝트 소개서 링크
-http://www.slideshare.net/haeri056/ss-56707786
+http://www.slideshare.net/haeri056/ss-56708220
 
 ####사용한 오픈소스 이름과 홈페이지 목록
 tmapAPI : https://developers.skplanetx.com/apidoc/kor/tmap/ <br/>
