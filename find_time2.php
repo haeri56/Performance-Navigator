@@ -3,9 +3,9 @@
 include 'getInstaRecord.php';
 
 function findTime2($url) {
-    $day = array('월', '화', '수', '목', '금', '토', '일', '평일', '주말');
+    $day = array('월', '화', '수', '목', '금', '토', '일', '평일', '주말'); //날짜별로 시간정보를 가져오기위한 배열
 
-    $inter_data = file_get_contents_curl($url);
+    $inter_data = file_get_contents_curl($url); 
     $inter_data = mb_convert_encoding($inter_data, 'utf-8', 'euc-kr');
 
     // 이름 구하기
@@ -69,7 +69,7 @@ function findTime2($url) {
     echo $place_name . "<br>";
     //장소이름 완료
     
-    //날짜 구하기
+    //기간안에 오늘날짜가 포함된 공연만 DB에 저
     $play_date = $inter_data;
     $index = strpos($play_date, '기간');
     $play_date = substr($play_date, $index);
@@ -94,14 +94,14 @@ function findTime2($url) {
     echo $play_date . "<br>";
 
     
-
+    //시작날짜가 오늘보다 뒤에있으면 DB에 저장하지 않
     if ((int) $play_date - (int) $today > 0) {
         echo "걸러라<br>";
         return 0;
     }
     //날짜 거르기
     
-    //좌석수 구하기 
+    //좌석수 구하기, 앞으로 추가될 기능
     $seat = $inter_data;
     $index = strpos($seat, 'var vPC');
     $seat = substr($seat, $index);
@@ -109,7 +109,7 @@ function findTime2($url) {
     $index = strpos($seat, 'var vBSYN');
     $seat = substr($seat, 0, $index);
     $seat = preg_replace("/[^0-9]/", "", $seat);
-
+    //공연장정보 페이지로 이동하여 공연장의 좌석수 가져오기 
     $url2 = "http://ticket.interpark.com/Ticket/Goods/ifrGoodsPlace.asp?PlaceCode=" . $seat;
     $place = file_get_contents_curl($url2);
 
@@ -125,17 +125,17 @@ function findTime2($url) {
     $xy = substr($xy, 0, $index);
     $xy_array = explode('&', $xy);
 
-    $xy_array[1] = preg_replace("/([a-zA-Z]{1,10})/", "", $xy_array[1]);
+    $xy_array[1] = preg_replace("/([a-zA-Z]{1,10})/", "", $xy_array[1]);//영어지우기
     $xy_array[1] = str_replace("=", "", $xy_array[1]);
     $longitude = (double) $xy_array[1];
-    $xy_array[2] = preg_replace("/([a-zA-Z]{1,10})/", "", $xy_array[2]);
+    $xy_array[2] = preg_replace("/([a-zA-Z]{1,10})/", "", $xy_array[2]);//영어지우기
     $xy_array[2] = str_replace("=", "", $xy_array[2]);
     $latitude = (double) $xy_array[2];
     echo $longitude . "<br>";
     echo $latitude . "<br>";
     //long , lat 완료
     
-    //공연 관람 시간 구하기
+    //공연 소요시간 구하기 -> 보여질때 시작시간 + 소요시간으로 제공될것
     $index = strpos($inter_data, '<dd class="etc">');
     $inter_data = substr($inter_data, $index);
     $inter_array = explode('<div class="dt_tSocial">', $inter_data);
@@ -156,13 +156,14 @@ function findTime2($url) {
     }
     echo $play_runtime . "<br>";
 
-    // 공연 시간 구하기
+    // 공연 시간 구하기 -> 시작시간
     $index = strpos($inter_array[1], '<p class="m_T5">');
     $inter_data = substr($inter_array[1], $index);
     $index = strpos($inter_data, "</p>");
     $inter_data = substr($inter_data, 0, $index);
     $inter_data = strip_tags($inter_data);
 
+    //특수문자 & 필요없는 문자 지우
     if ($index = strpos($inter_data, "http")) {
         $inter_data = substr($inter_data, 0, $index);
     }
@@ -251,11 +252,11 @@ function findTime2($url) {
     $inter_data = implode(' /', $time2);
     $time2 = explode(' ', $inter_data);
     $inter_data = implode('/', $time2);
-    $time2 = explode('년', $inter_data);
+    $time2 = explode('년', $inter_data); //특정한날짜 지우기
     $inter_data = $time2[sizeof($time2) - 1];
     $time2 = explode('/', $inter_data);
     $inter_data = implode('/', $time2);
-    $time2 = explode('시', $inter_data);
+    $time2 = explode('시', $inter_data); //시로 나눠서 시간은 숫자만남게 만듬
     $inter_data = implode(' /', $time2);
     $time2 = explode('/', $inter_data);
     $time3 = array();
@@ -265,7 +266,7 @@ function findTime2($url) {
         # code…
         $value2 = preg_replace("/([0-9]{1,2})([가-힣]{1,3})/", "", $value2);
         $value2 = preg_replace("/([a-zA-Z]{1,10})/", "", $value2);
-
+        //영어, 숫자와 한글이 합쳐진문자 지우기
         $len = mb_strlen($value2);
 
         if ($len > 0) {
@@ -276,30 +277,31 @@ function findTime2($url) {
     }
 
     foreach ($day as $date) {
+        //요일별로 시간찾기 
         $kk = 0;
         $flag = true;
-        foreach ($time3 as $date2) {
+        foreach ($time3 as $date2) { //시간정보가 배열에 나눠 저장된상태 ex) 월 830 화 330
             # code…
             if ($flag == false)
                 break;
             if (!(strpos($date2, $date) === false)) {
                 $temp = $kk;
                 while ($temp < sizeof($time3)) {
-                    if (preg_match("/[0-9]{1,2}/", $time3[$temp], $a)) {
-                        $time3[$temp] = preg_replace("/[^0-9]/", "", $time3[$temp]);
-                        if (strlen($time3[$temp]) >= 3) {
+                    if (preg_match("/[0-9]{1,2}/", $time3[$temp], $a)) { //숫자로만 되어있는 배열을 찾으면
+                        $time3[$temp] = preg_replace("/[^0-9]/", "", $time3[$temp]); //해당요일의 시간에 넣음
+                        if (strlen($time3[$temp]) >= 3) { //숫자가 3개이상이면 ex)630 ->6시30분
                             $var = substr($time3[$temp], 0, -2) . "시" . substr($time3[$temp], -2) . "분";
                             $time3[$temp] = $var;
                         } else {
                             $time3[$temp].="시";
                         }
-                        if ($date == '평일') {
+                        if ($date == '평일') { //평일이란 문구를 찾으면 월화수목금 다 적용
                             $result2['월'] = $time3[$temp];
                             $result2['화'] = $time3[$temp];
                             $result2['수'] = $time3[$temp];
                             $result2['목'] = $time3[$temp];
                             $result2['금'] = $time3[$temp];
-                        } else if ($date == '주말') {
+                        } else if ($date == '주말') {//주말이란 문구를 찾으면 토일만 적용
                             $result2['토'] = $time3[$temp];
                             $result2['일'] = $time3[$temp];
                         } else {
@@ -311,12 +313,14 @@ function findTime2($url) {
                     $temp++;
                 }
             } else {
+                //숫자 못찾았을경우 해당날짜 공연없음
                 $result2[$date] = "공연없음";
             }
             $kk++;
         }
     }
     
+    //소요시간을 숫자만 남게함 ex) 100분 -> 100
     $play_runtime = preg_replace("/[^0-9]/", "", $play_runtime);
 
     foreach ($result2 as $key => $result3) {
@@ -332,13 +336,13 @@ function findTime2($url) {
         $tempTime = (int) ($mArr[0]) + (int) ($play_runtime);
         $min = $tempTime % 60;
         $hour = (int) ($hArr[0] + $tempTime / 60);
-        
+        //소요시간과 시작시간 더함 
         $result2[$key] = $hour . "시" . $min . "분";
 
     }
 
     print_r($result2);
-    
+    //db에 넣기 
     insert($title2, $img, $place_name, $result2, $play_runtime, $longitude, $latitude, $popularity);
     echo "<br><br>";
 }
