@@ -5,3 +5,7 @@
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=zWnXZ7MHBHg
 " target="_blank"><img src="http://img.youtube.com/vi/zWnXZ7MHBHg/0.jpg" 
 alt="공연네비게이터" width="240" height="180" border="10" /></a>
+
+#####프로젝트 소개서 링크
+
+#####사용한 오픈소스 이름과 홈페이지 목록
