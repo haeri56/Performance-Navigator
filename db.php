@@ -62,21 +62,6 @@ function insert($title, $img, $place_name, $result2, $play_runtime, $longitude, 
     }
 }
 
-function insert_db($data) {
-    $sql = "insert into play(img,title,sido,place,gpsX,gpsY,time,startDate,endDate)";
-    $sql.="value ('" . $data['thumbnail'] . "','" . $data['title'] . "','"
-            . $data['sido'] . "','" . $data['place'] . "','"
-            . $data['gpsX'] . "','" . $data['gpsY'] . "','"
-            . $data['time'] . "','" . $data['startDate'] . "','" . $data['endDate'] . "')";
-    $result = mysql_query($sql);
-    echo $data['title'] . $data['time'] . $data['sido'];
-    if ($result) {
-        echo ": 성공<br>";
-    } else {
-        echo ": 실패<br>";
-    }
-}
-
 function is_passwd_correct($id, $passwd) {
     $query = "select groups from member where id='" . $id . "' and passwd='" . $passwd . "'";
     $rows = mysql_query($query);
@@ -87,7 +72,7 @@ function is_passwd_correct($id, $passwd) {
         //그래서 mysql_num_rows를 이용해서 갯수가 있는지 없는지 보는 것.
         $row = mysql_fetch_row($rows);
         if ($row[0] == 'admin') {
-            header("Location:menu.php");
+            header("Location:testtest2.php");
         } else {
             header("Location:index.php");
         }
